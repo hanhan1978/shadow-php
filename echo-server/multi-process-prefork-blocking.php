@@ -10,21 +10,22 @@ if(!socket_bind($sock, '127.0.0.1', 8080) || !socket_listen($sock, 0)){
 }
 
 $pids = [];
-foreach(range(1,2) as $i){
+foreach(range(0,1) as $i){ //２つの子プロセスを作成する
     $pid = pcntl_fork();
-    if($pid !== 0){
-        $pids[] = $pid;
-    }else{
+    if($pid === 0){ //子プロセスの場合
         while(true) {
             $client_sock = socket_accept($sock);
             $buf = socket_read($client_sock, 1024);
             socket_write($client_sock, $buf);
             socket_close($client_sock);
         }
+    }else{
+        //親プロセスの場合は、pidを収集
+        $pids[] = $pid;
     }
 }
 
 foreach($pids as $pid){
+    //親側のプロセスは、子プロセスの状態を監視する（ここで処理はBlockする）
     pcntl_waitpid($pid, $status);
-    echo("checking status[$status]\n");
 }
