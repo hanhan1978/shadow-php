@@ -21,4 +21,3 @@ while(true){
     socket_write($client_sock, $buf);
     socket_close($client_sock);
 }
-socket_close($sock);
